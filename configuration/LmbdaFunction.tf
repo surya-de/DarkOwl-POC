@@ -27,5 +27,58 @@ resource "aws_iam_role_policy" "LambdaPolicy_API-DynamoDB" {
   role = "${aws_iam_role.lambda_exec.id}"
 }
 
-scp -i "DarkOwl.pem" -r DarkOwl-POC/configuration ubuntu@ec2-18-118-51-70.us-east-2.compute.amazonaws.com:/home/ubuntu/DarkOwl-POC/
+resource "aws_api_gateway_resource" "proxy" {
+  rest_api_id = "${aws_api_gateway_rest_api.AcceptPostReqs.id}"
+  parent_id = "${aws_api_gateway_rest_api.AcceptPostReqs.root_resource_id}"
+  path_part = "{proxy+}"
+}
 
+resource "aws_api_gateway_method" "proxy" {
+  rest_api_id = "${aws_api_gateway_rest_api.AcceptPostReqs.id}"
+  resource_id = "${aws_api_gateway_resource.proxy.id}"
+  http_method = "POST"
+  authorization = "None"
+}
+
+resource "aws_api_gateway_integration" "LambdaIntegration" {
+  rest_api_id = "${aws_api_gateway_rest_api.AcceptPostReqs.id}"
+  resource_id = "${aws_api_gateway_method.proxy.resource_id}"
+  http_method = "${aws_api_gateway_method.proxy.http_method}"
+  integration_http_method = "POST"
+  type = "AWS_PROXY"
+  uri = "${aws_lambda_function.ProcessAPIRequest.invoke_arn}"
+}
+
+resource "aws_api_gateway_method" "proxy_root" {
+  rest_api_id   = "${aws_api_gateway_rest_api.AcceptPostReqs.id}"
+  resource_id   = "${aws_api_gateway_rest_api.AcceptPostReqs.root_resource_id}"
+  http_method   = "POST"
+  authorization = "NONE"
+}
+
+resource "aws_api_gateway_integration" "LambdaIntegration_root" {
+  rest_api_id = "${aws_api_gateway_rest_api.AcceptPostReqs.id}"
+  resource_id = "${aws_api_gateway_method.proxy_root.resource_id}"
+  http_method = "${aws_api_gateway_method.proxy_root.http_method}"
+
+  integration_http_method = "POST"
+  type = "AWS_PROXY"
+  uri = "${aws_lambda_function.ProcessAPIRequest.invoke_arn}"
+}
+
+resource "aws_api_gateway_deployment" "ApiDeployment" {
+  depends_on = [
+    "aws_api_gateway_integration.LambdaIntegration",
+    "aws_api_gateway_integration.LambdaIntegration_root",
+  ]
+  rest_api_id = "${aws_api_gateway_rest_api.AcceptPostReqs.id}"
+  stage_name = "DarkOwlPOC"
+}
+
+resource "aws_lambda_permission" "AllowPermission" {
+  statement_id  = "AllowAPIGatewayInvoke"
+  action        = "lambda:InvokeFunction"
+  function_name = "${aws_lambda_function.ProcessAPIRequest.function_name}"
+  principal     = "apigateway.amazonaws.com"
+  source_arn = "${aws_api_gateway_rest_api.AcceptPostReqs.execution_arn}/*/*"
+}
