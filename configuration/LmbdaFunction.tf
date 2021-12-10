@@ -5,8 +5,6 @@ provider "aws" {
 resource "aws_lambda_function" "ProcessAPIRequest" {
   filename = "lambda_deployment_pkg.zip"
   function_name = "ProcessAPIRequest"
-    s3_bucket = "deploymentstorage-darkowl"
-  s3_key = "lambda_deployment_pkg.zip"
   handler = "ApiHandler.lambda_handler"
   role = "${aws_iam_role.lambda_exec.arn}"
   description = "Lmabda Funcion to accespt API req and populate DynamoDB"
