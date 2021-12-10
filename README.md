@@ -16,12 +16,13 @@ In this project I have used terraform and Python to automate and imlement the ar
 ## Assumptions
 In order to implement I have made the following assumptions-
 * A runner instance/system is available with git and aws cli configured.
+* By default I have set the rerion to `us-west-2`.
 * Because of time constraints I have no considered scenarios to validate data insertion after an interval to avoid data loss. (I will discuss more about it in the improvemen section)
 * I have assumes that we will not be inserting more that 10 items in the dynamoDb per second.
 
 ## Folder Structure
 ```
-  - DarkOwl                           ## The root of the project.
+  - DarkOwl-POC                       ## The root of the project.
     |- configurations                 ## The folder which contains all the configuration scripts(Terraform).
       |- Policies                     ## This sub folder contains JSON files for the IAM roles and Policies.
         |- LambdaPolicy.json          ## This is the IAM policy JSON that grants Lambda access to put items in Dynamo DB.
@@ -40,22 +41,97 @@ In order to implement I have made the following assumptions-
 ```bash
 git clone https://github.com/surya-de/DarkOwl-POC.git
 ```
-* 
-## Runner Policy
-* iam:CreateRole
-* iam:PutRolePolicy
-* dynamodb:CreateTable
-* dynamodb:TagResource
-* dynamodb:DescribeTable
-* dynamodb:DescribeContinuousBackups
-* dynamodb:DescribeTimeToLive
-* dynamodb:ListTagsOfResource
-* dynamodb:DeleteTable
-* logs:CreateLogGroup
-* logs:PutRetentionPolicy
-* logs:ListTagsLogGroup
-* logs:DeleteLogGroup
+* Once the repository is cloned. Perform the following steps-
+```bash
+cd DarkOwl-POC
+cd configurations
+```
+* you are now inside the ``configurations`` folder which holds all the terraform files. Do the following steps to initialize and validate the scripts-
+```bash
+terraform init
+terraform validate
+```
+* Now that terraform is initialised and validated, lets create a deployment package(zip) for the lambda function(``DarkOwl-POC/APIHandler.py``) and sore it here ``DarkOwl-POC/configurations``
+```bash
+zip lambda_deployment_pkg.zip ../APIHandler.py
+```
+* The pervious step should create a file `lambda_deployment_pkg.zip` in the following path- `DarkOwl-POC/configurations`
+* Now that the deployment package is ready, we are all set to run the terraform scripts-
+```Bash
+terraform apply
+```
+Once this is done, terraform will show a summary of resources that are to be created and will ask for a validation. Once prompted we need to allow the process by typing `yes`. This validation step can be avoided by using this scriot-
+```bash
+terraform apply -auto-approve
+```
+* On successful completion of this step, our AWS infrastructure will be ready and we can test our pipeline. The API endpoint can be found at the end of the execution.
 
+## Additional Information
+Once can use IAM users or IAM Roles(`If using ec2`) to run the steps mentioned above. Please make sure the following permissions are attached to the IAM user or IAM Role before doing the above steps.
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "iam:CreateRole",
+                "iam:PutRolePolicy",
+                "iam:GetRole",
+                "iam:GetRolePolicy",
+                "iam:GetPolicyVersion",
+                "iam:ListAttachedRolePolicies",
+                "iam:ListRolePolicies",
+                "iam:ListRoles",
+                "apigateway:*",
+                "dynamodb:CreateTable",
+                "dynamodb:TagResource",
+                "dynamodb:DescribeTable",
+                "dynamodb:DescribeContinuousBackups",
+                "dynamodb:DescribeTimeToLive",
+                "dynamodb:ListTagsOfResource",
+                "dynamodb:DeleteTable",
+                "logs:CreateLogGroup",
+                "logs:PutRetentionPolicy",
+                "logs:DescribeLogGroups",
+                "logs:ListTagsLogGroup",
+                "logs:DeleteLogGroup",
+                "cloudwatch:ListMetrics",
+                "cloudwatch:GetMetricData",
+                "execute-api:Invoke",
+                "execute-api:ManageConnections",
+                "xray:GetTraceSummaries",
+                "xray:BatchGetTraces",
+                "tag:GetResources",
+                "ec2:DescribeSecurityGroups",
+                "ec2:DescribeSubnets",
+                "ec2:DescribeVpcs",
+                "kms:ListAliases"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": "iam:PassRole",
+            "Resource": "*",
+            "Condition": {
+                "StringEquals": {
+                    "iam:PassedToService": "lambda.amazonaws.com"
+                }
+            }
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "logs:DescribeLogStreams",
+                "logs:GetLogEvents",
+                "logs:FilterLogEvents"
+            ],
+            "Resource": "arn:aws:logs:*:*:log-group:/aws/lambda/*"
+        }
+    ]
+}
+```
 scp -i "DarkOwl.pem" -r DarkOwl-POC/configuration ubuntu@ec2-18-118-51-70.us-east-2.compute.amazonaws.com:/home/ubuntu/DarkOwl-POC/
 
 curl -v -X "POST" -H "Content-Type: application/json" -d "{\"Value\": \"12369845021\"}" https://d6rkyqcj56.execute-api.us-west-2.amazonaws.com/DarkOwlPOC
