@@ -66,6 +66,7 @@ Once this is done, terraform will show a summary of resources that are to be cre
 terraform apply -auto-approve
 ```
 * On successful completion of this step, our AWS infrastructure will be ready and we can test our pipeline. The API endpoint can be found at the end of the execution.
+![ApiEndointLocation](/res/apiEnpPoint.png)
 
 ## Set Up Information
 1. One can use IAM users or IAM Roles(`If using ec2`) to run the steps mentioned above. Please make sure the following permissions are attached to the IAM user or IAM Role before doing the above steps.
