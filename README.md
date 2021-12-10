@@ -67,8 +67,8 @@ terraform apply -auto-approve
 ```
 * On successful completion of this step, our AWS infrastructure will be ready and we can test our pipeline. The API endpoint can be found at the end of the execution.
 
-## Additional Information
-Once can use IAM users or IAM Roles(`If using ec2`) to run the steps mentioned above. Please make sure the following permissions are attached to the IAM user or IAM Role before doing the above steps.
+## Set Up Information
+1. One can use IAM users or IAM Roles(`If using ec2`) to run the steps mentioned above. Please make sure the following permissions are attached to the IAM user or IAM Role before doing the above steps.
 ```json
 {
     "Version": "2012-10-17",
@@ -132,6 +132,13 @@ Once can use IAM users or IAM Roles(`If using ec2`) to run the steps mentioned a
         }
     ]
 }
+```
+
+2. If you are using IAM User. Please make sure to configure the aws cli by adding AWS Access key and AWS Access ID.
+```bash
+aws configure
+AWS Access Key ID [None]: ENTER AWS-ACCESS-KEY-ID
+AWS Secret Access Key [None]: ENTER AWS-SECRET-ACCESS-KEY-ID
 ```
 
 ## Test the API
