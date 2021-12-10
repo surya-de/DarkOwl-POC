@@ -16,7 +16,8 @@ In this project I have used terraform and Python to automate and imlement the ar
 ## Assumptions
 In order to implement I have made the following assumptions-
 * A runner instance/system is available with git and aws cli configured.
-* By default I have set the rerion to `us-west-2`.
+* By default I have set the region to `us-west-2`.
+* Due to the time constraint I have used `Default VPC` for all the resources.
 * Because of time constraints I have no considered scenarios to validate data insertion after an interval to avoid data loss. (I will discuss more about it in the improvemen section)
 * I have assumes that we will not be inserting more that 10 items in the dynamoDb per second.
 
@@ -132,6 +133,9 @@ Once can use IAM users or IAM Roles(`If using ec2`) to run the steps mentioned a
     ]
 }
 ```
-scp -i "DarkOwl.pem" -r DarkOwl-POC/configuration ubuntu@ec2-18-118-51-70.us-east-2.compute.amazonaws.com:/home/ubuntu/DarkOwl-POC/
 
-curl -v -X "POST" -H "Content-Type: application/json" -d "{\"Value\": \"12369845021\"}" https://d6rkyqcj56.execute-api.us-west-2.amazonaws.com/DarkOwlPOC
+## Test the API
+Once the IAC runs successfully we can find the API endpoint on the CLI. We can use the follwing command to test our endpoint-
+```bash
+curl -v -X "POST" -H "Content-Type: application/json" -d "{\"Value\": \"12369845021\"}" https://REPLACE/WITH/API/ENDPOINT/URL
+```
