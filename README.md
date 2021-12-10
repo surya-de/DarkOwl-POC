@@ -33,7 +33,7 @@ In order to implement I have made the following assumptions-
       |- DynamoDb.tf                  ## IAC script for DynamoDB configuration.
       |- LmbdaFunctio.tf              ## IAC script for Lambda FUnction configuration.
     |- res                            ## The resources folder which is used to store architectural diagrams for Readme file.
-    |- APIHandler.py                  ## This is the main lambda function which is responsible for data processing and putting item into DB.
+    |- ApiHandler.py                  ## This is the main lambda function which is responsible for data processing and putting item into DB.
     |- Readme.md                      ## The Readme file
     
 ```
@@ -54,7 +54,7 @@ terraform validate
 ```
 * Now that terraform is initialised and validated, lets create a deployment package(zip) for the lambda function(``DarkOwl-POC/APIHandler.py``) and sore it here ``DarkOwl-POC/configurations``
 ```bash
-zip lambda_deployment_pkg.zip ../APIHandler.py
+zip lambda_deployment_pkg.zip ../ApiHandler.py
 ```
 * The pervious step should create a file `lambda_deployment_pkg.zip` in the following path- `DarkOwl-POC/configurations`
 * Now that the deployment package is ready, we are all set to run the terraform scripts-
