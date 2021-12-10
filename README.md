@@ -45,7 +45,7 @@ git clone https://github.com/surya-de/DarkOwl-POC.git
 * Once the repository is cloned. Perform the following steps-
 ```bash
 cd DarkOwl-POC
-cd configurations
+cd configuration
 ```
 * you are now inside the ``configurations`` folder which holds all the terraform files. Do the following steps to initialize and validate the scripts-
 ```bash
