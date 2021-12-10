@@ -16,12 +16,12 @@ resource "aws_lambda_function" "ProcessAPIRequest" {
 
 resource "aws_iam_role" "lambda_exec" {
   name = "LambdaRole_API-DynamoDB"
-  assume_role_policy = file("TrustRelationship.json")
+  assume_role_policy = file("Policies/TrustRelationship.json")
 }
 
 resource "aws_iam_role_policy" "LambdaPolicy_API-DynamoDB" {
   name = "LambdaPolicy_API-DynamoDB"
-  policy = file("LambdaPolicy.json")
+  policy = file("Policies/LambdaPolicy.json")
   role = "${aws_iam_role.lambda_exec.id}"
 }
 
